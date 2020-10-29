@@ -45,13 +45,18 @@ class NaverCrawler:
                 #find td tags, mall info
                 mall_list.append(self._parse_mall_info(tr))
                 #Get product name
-                product_list.append(self._parse_product_info(tr))
+                td_lft = tr.find("td", {"class": "lft"})
+                product_list.append(td_lft.find('a').text)
                 #Get price info
-                price_list.append(self._parse_price_info(tr))
+                td_price = tr.find("td", {"class": "td_price"}).find('span').text.replace(',', '')
+                price_list.append(td_price)
                 #Get price url info
-                url_list.append(self._parse_price_url_info(tr))
+                td_url = tr.find("td", {"class": "td_price"}).find('a')['href']
+                url_list.append(td_url)
                 #Get delivery cost info
-                delivery_list.append(self._parse_delivery_price_info(tr))
+                delivery_td = tr.find_all("td")[3]
+                delivery_cost = delivery_td.find('p').text.replace('원', '').replace('무료배송', '0').replace(',', '')
+                delivery_list.append(delivery_cost)
 
         except Exception as e:
             print(e)
@@ -77,34 +82,8 @@ class NaverCrawler:
         except:
             return ''
 
-    def _parse_product_info(tr):
-        try:
-            td_lft = tr.find("td", {"class": "lft"})
-            return td_lft.find('a').text
-        except:
-            return ''
-
-    def _parse_price_info(tr):
-        try:
-            return tr.find("td", {"class": "td_price"}).find('span').text.replace(',', '')
-        except:
-            return ''
-    
-    def _parse_price_url_info(tr):
-        try:
-            return tr.find("td", {"class": "td_price"}).find('a')['href']
-        except:
-            return ''
-    
-    def _parse_delivery_price_info(tr):
-        try:
-            delivery_td = tr.find_all("td")[3]
-            return delivery_td.find('p').text.replace('원', '').replace('무료배송', '0').replace(',', '')
-        except:
-            return ''
-
     def run_craweler(self, url, result_df, info_type):
-        '''Check input is vaild url and extract key data'''
+        '''Check url is vaild and extract key data'''
 
         if "https://search.shopping.naver.com/" in str(url):
             html = self.crawl_search_page(Find(url)[0])
@@ -132,4 +111,6 @@ if __name__ == '__main__':
 
     print(result_df)
 
+    #html = crawler.crawl_search_page(None)
+    #crawler.parse_search_page(html)
     
