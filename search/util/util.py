@@ -12,7 +12,7 @@ def readPickle(pickle_file):
         obj = pickle.load(input)
         return obj
 
-def Find(string): 
+def findUrl(string): 
     # findall() has been used  
     # with valid conditions for urls in string 
     regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
