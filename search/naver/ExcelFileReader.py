@@ -3,6 +3,7 @@ import pickle
 
 import sys
 sys.path.append('C:\\Users\\kang.y.5\\OneDrive - Procter and Gamble\\Documents\\GitHub\\liberation\\search')
+
 print(sys.path)
 
 from util.util import readPickle, writePickle
@@ -16,7 +17,6 @@ class ExcelFileReader:
 
     def load (filepath):
         return readPickle(filepath)
-
 
 
 if __name__ == "__main__":
