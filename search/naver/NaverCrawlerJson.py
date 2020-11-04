@@ -7,11 +7,11 @@ import pandas as pd
 import sys
 import os
 import json
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname('../..'))))
+
 from ExcelFileReader import ExcelFileReader
 from util.util import findUrl
 from NaverScreenshot import open_chrome_driver, save_fullpage_screenshot
-
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname('../..'))))
 
 class NaverCrawler:
 
@@ -60,6 +60,7 @@ class NaverCrawler:
                     continue
 
             naver_df['pid'] = pid
+            naver_df['crawling_date'] = datetime.now()
             return naver_df
 
         except ValueError as ve:
@@ -80,11 +81,11 @@ class NaverCrawler:
     def insert_db(result_df):
         print('====================================Insert DB==============================================')
         print(result_df.sample(5))
-        engine = create_engine('postgresql+psycopg2://tracker:tracker123!@143.40.147.92:5432/tracker_db', echo=False)
-        price_df.to_sql('naver_price_df', con=engine, if_exists='append')
+        engine = create_engine('postgresql+psycopg2://liberation:qwer1234@172.17.0.2:5432/liberation_db', echo=False)
+        result_df.to_sql('naver_price', con=engine, if_exists='append')
 
 
-    def run_craweler(self, url, result_df, info_type):
+    def run_craweler(self, url, result_df, info_type, d):
         '''Check input is vaild url and extract key data'''
 
         if "https://search.shopping.naver.com/" in str(url):
@@ -103,6 +104,7 @@ class NaverCrawler:
         return result_df
 
 if __name__ == '__main__':
+    print('Naver Crawler Start')
     data = ExcelFileReader.load('../data/naver_url.pkl')
     result_df = pd.DataFrame()
     crawler = NaverCrawler    
@@ -114,12 +116,13 @@ if __name__ == '__main__':
         nurl_1 = row[30] #Competitor 1 url
         nurl_2 = row[47] #Competitor 2 url
 
-        result_df = NaverCrawler.run_craweler(crawler, nurl_pg, result_df, 'PG')
-        result_df = NaverCrawler.run_craweler(crawler, nurl_1, result_df, 'C1')
-        result_df = NaverCrawler.run_craweler(crawler, nurl_2, result_df, 'C2')
+        result_df = NaverCrawler.run_craweler(crawler, nurl_pg, result_df, 'PG', d)
+        result_df = NaverCrawler.run_craweler(crawler, nurl_1, result_df, 'C1', d)
+        result_df = NaverCrawler.run_craweler(crawler, nurl_2, result_df, 'C2', d)
 
         print(pid)
     print(result_df)
     d.close()
 
-    #crawler.insert_db(result_df)
+    crawler.insert_db(result_df)
+

@@ -2,7 +2,7 @@ import pandas as pd
 import pickle
 
 import sys
-sys.path.append('C:\\Users\\kang.y.5\\OneDrive - Procter and Gamble\\Documents\\GitHub\\liberation\\search')
+sys.path.append('/root/liberation/search')
 
 print(sys.path)
 

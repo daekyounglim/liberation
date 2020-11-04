@@ -10,6 +10,8 @@ def save_fullpage_screenshot(chromeDriver, pidInfo=None, url=None):
     time.sleep(5)
     
     filename = str(time.strftime("%Y-%m-%d_%H-%M-%S")) + "_pid-" + str(pidInfo) + ".png"
+    direcoty = "/shared/image/"
+    filename = direcoty + filename
     try:
         chromeDriver.save_screenshot(filename)
         return filename
@@ -19,7 +21,7 @@ def save_fullpage_screenshot(chromeDriver, pidInfo=None, url=None):
 def open_chrome_driver(path = None):
     '''open chrome driver with options'''
 
-    path = 'c:\\bin\\chromedriver.exe'
+    path = 'chromedriver'
     chrome_options = Options()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
