@@ -17,8 +17,6 @@ class NaverCrawler:
 
     def crawl_search_page(url=None):
         '''Search Page Crawling by keyword'''
-
-        url = "https://search.shopping.naver.com/catalog/5825510700?"
         html = requests.get(url, headers={'User-Agent': 'Moziilla/5.0'})
 
         page_soup = soup(html.text, 'html.parser')
