@@ -51,10 +51,15 @@ class NaverCrawler:
                     case = self._determine_case_type(i)
                     i += 1
                     #for loop products list, 1 product level
-                    for product in products:
-                        product_df = pd.DataFrame(product, index=[0])
+                    rank = 0
+                    while rank < len(products):
+                        product_df = pd.DataFrame(products[rank], index=[0])
                         product_df['productCaseType'] = case
+                        #add rank of the product from the main list
+                        if i == 3:
+                            product_df['rank'] = rank+1
                         naver_df = pd.concat([naver_df, product_df], axis=0, ignore_index=True)
+                        rank += 1
                 else:
                     i += 1
                     continue
@@ -76,12 +81,12 @@ class NaverCrawler:
 
     def _determine_case_type (i):
         '''Return meaning of the product case'''
-        return {0: 'lowest price', 1: 'official mall', 2:'summary', 3: 'main liest', 4: 'need to be investigated'}.get(i, 'case not determinded')
+        return {0: 'lowest price', 1: 'official mall', 2:'summary', 3: 'main list', 4: 'need to be investigated'}.get(i, 'case not determinded')
 
     def insert_db(result_df):
         print('====================================Insert DB==============================================')
         print(result_df.sample(5))
-        engine = create_engine('postgresql+psycopg2://liberation:qwer1234@172.17.0.2:5432/liberation_db', echo=False)
+        engine = create_engine('postgresql+psycopg2://liberation:qwer1234@143.40.147.92:5432/liberation_db', echo=False)
         result_df.to_sql('naver_price', con=engine, if_exists='append')
 
 
@@ -95,6 +100,8 @@ class NaverCrawler:
             html = self.crawl_search_page(url_found)
             #parse page source
             naver_df = self.parse_search_page(self, html, pid)
+            #filer_mandatory_columns
+            naver_df = naver_df[['nvMid', 'productName', 'mallName', 'channelName', 'pcPrice', 'mobilePrice', 'deliveryFee', 'crawling_date', 'pid', 'rank', 'pcProductUrl']]
             #add if it is P&G product, Competitor 1, Competitor 2
             naver_df['type'] = info_type
             # take a screenshot of it and add file name to screenshot col
@@ -110,6 +117,9 @@ if __name__ == '__main__':
     crawler = NaverCrawler    
     d = open_chrome_driver()
 
+    origin_df = pd.DataFrame(data)
+    print(origin_df)
+
     for row in data.values:
         pid= row[0]
         nurl_pg = row[11] #P&G Product url
@@ -122,7 +132,10 @@ if __name__ == '__main__':
 
         print(pid)
     print(result_df)
+
+    main_df = pd.merge(origin_df[['No', 'Barcode']], result_df, how='right', left_on = 'No', right_on= 'pid').drop(['pid'], axis=1)
+    print(main_df)
+
     d.close()
-
-    crawler.insert_db(result_df)
-
+    
+    crawler.insert_db(main_df)
