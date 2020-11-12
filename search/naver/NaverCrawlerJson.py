@@ -17,8 +17,8 @@ class NaverCrawler:
 
     def crawl_search_page(url=None):
         '''Search Page Crawling by keyword'''
-        html = requests.get(url, headers={'User-Agent': 'Moziilla/5.0'})
 
+        html = requests.get(url, headers={'User-Agent': 'Moziilla/5.0'})
         page_soup = soup(html.text, 'html.parser')
         data = page_soup.findAll('script', {'type': 'application/json'})
         json_data = str(data[0]).replace('<script id="__NEXT_DATA__" type="application/json">','').replace('</script>','')
@@ -46,24 +46,27 @@ class NaverCrawler:
                 products = self._parse_element(productsPage, 'products')
 
                 if products is not None:
-                    case = self._determine_case_type(i)
                     i += 1
-                    #for loop products list, 1 product level
-                    rank = 0
-                    while rank < len(products):
-                        product_df = pd.DataFrame(products[rank], index=[0])
-                        product_df['productCaseType'] = case
-                        #add rank of the product from the main list
-                        if i == 3:
-                            product_df['rank'] = rank+1
-                        naver_df = pd.concat([naver_df, product_df], axis=0, ignore_index=True)
-                        rank += 1
+                    #only if this product is in main list
+                    if i==3:                        
+                        #for loop products list, 1 product level
+                        rank = 0
+                        while rank < len(products):
+                            product_df = pd.DataFrame(products[rank], index=[0])
+                            #add rank of the product from the main list
+                            product_df['pcRank'] = rank + 1
+                            naver_df = pd.concat([naver_df, product_df], axis=0, ignore_index=True)
+                            rank += 1
                 else:
                     i += 1
                     continue
 
             naver_df['pid'] = pid
-            naver_df['crawling_date'] = datetime.now()
+            naver_df['crawling_datetime'] = datetime.now()
+            naver_df['crawling_date'] = pd.to_datetime(naver_df['crawling_datetime'] ).dt.date
+            naver_df['crawling_hour'] = pd.to_datetime(naver_df['crawling_datetime'] ).dt.hour
+            naver_df = naver_df.astype({"pcRank": int})
+
             return naver_df
 
         except ValueError as ve:
@@ -77,14 +80,17 @@ class NaverCrawler:
             #raise ValueError(f'Not Exist Error {element_name}')
             return None
 
+    '''
     def _determine_case_type (i):
-        '''Return meaning of the product case'''
+        #Return meaning of the product case
         return {0: 'lowest price', 1: 'official mall', 2:'summary', 3: 'main list', 4: 'need to be investigated'}.get(i, 'case not determinded')
-
+    '''
+    
     def insert_db(result_df):
         print('====================================Insert DB==============================================')
         print(result_df.sample(5))
         engine = create_engine('postgresql+psycopg2://liberation:qwer1234@143.40.147.92:5432/liberation_db', echo=False)
+        result_df.set_index(['crawling_date', 'crawling_hour', 'Barcode', 'nvMid'])
         result_df.to_sql('naver_price', con=engine, if_exists='append')
 
 
@@ -99,7 +105,7 @@ class NaverCrawler:
             #parse page source
             naver_df = self.parse_search_page(self, html, pid)
             #filer_mandatory_columns
-            naver_df = naver_df[['nvMid', 'productName', 'mallName', 'channelName', 'pcPrice', 'mobilePrice', 'deliveryFee', 'crawling_date', 'pid', 'rank', 'pcProductUrl']]
+            naver_df = naver_df[['crawling_date','crawling_hour','crawling_datetime', 'pid','nvMid', 'productName', 'mallName', 'channelName', 'pcPrice', 'mobilePrice', 'deliveryFee', 'pcRank', 'pcProductUrl']]
             #add if it is P&G product, Competitor 1, Competitor 2
             naver_df['type'] = info_type
             # take a screenshot of it and add file name to screenshot col
