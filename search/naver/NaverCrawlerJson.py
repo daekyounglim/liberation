@@ -48,7 +48,6 @@ class NaverCrawler:
                 products = self._parse_element(productsPage, 'products')
 
                 if products is not None:
-                    i += 1
                     #only if this product is in main list
                     if i==3:                        
                         #for loop products list, 1 product level
@@ -59,6 +58,7 @@ class NaverCrawler:
                             product_df['pcRank'] = rank + 1
                             naver_df = pd.concat([naver_df, product_df], axis=0, ignore_index=True)
                             rank += 1
+                    i += 1
                 else:
                     i += 1
                     continue
