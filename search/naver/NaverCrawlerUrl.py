@@ -13,9 +13,9 @@ from ExcelFileReader import ExcelFileReader
 from util.util import findUrl
 from NaverScreenshot import open_chrome_driver, save_fullpage_screenshot
 
-class NaverCrawler:
+class NaverCrawlerUrl:
 
-    def crawl_search_page(url=None):
+    def crawl_search_page(self, url=None):
         '''Search Page Crawling by keyword'''
 
         html = requests.get(url, headers={'User-Agent': 'Moziilla/5.0'})
@@ -46,6 +46,7 @@ class NaverCrawler:
                 products = self._parse_element(productsPage, 'products')
 
                 if products is not None:
+                    
                     #only if this product is in main list
                     if i==3:                        
                         #for loop products list, 1 product level
@@ -72,7 +73,7 @@ class NaverCrawler:
         except ValueError as ve:
             print(ve)
 
-    def _parse_element(obj, element_name):
+    def _parse_element(self, obj, element_name):
         '''Parse obj by element'''
         if obj is not None and obj[element_name] is not None:
             return obj[element_name]
@@ -85,16 +86,9 @@ class NaverCrawler:
         #Return meaning of the product case
         return {0: 'lowest price', 1: 'official mall', 2:'summary', 3: 'main list', 4: 'need to be investigated'}.get(i, 'case not determinded')
     '''
-    
-    def insert_db(result_df):
-        print('====================================Insert DB==============================================')
-        print(result_df.sample(5))
-        engine = create_engine('postgresql+psycopg2://liberation:qwer1234@143.40.147.92:5432/liberation_db', echo=False)
-        result_df.set_index(['crawling_date', 'crawling_hour', 'Barcode', 'nvMid'])
-        result_df.to_sql('naver_price', con=engine, if_exists='append')
 
 
-    def run_craweler(self, url, result_df, info_type, d):
+    def run_craweler(self, pid, url, result_df, info_type, d):
         '''Check input is vaild url and extract key data'''
 
         if "https://search.shopping.naver.com/" in str(url):
@@ -103,11 +97,9 @@ class NaverCrawler:
             #get page source
             html = self.crawl_search_page(url_found)
             #parse page source
-            naver_df = self.parse_search_page(self, html, pid)
+            naver_df = self.parse_search_page(html, pid)
             #filer_mandatory_columns
             naver_df = naver_df[['crawling_date','crawling_hour','crawling_datetime', 'pid','nvMid', 'productName', 'mallName', 'channelName', 'pcPrice', 'mobilePrice', 'deliveryFee', 'pcRank', 'pcProductUrl']]
-            #add if it is P&G product, Competitor 1, Competitor 2
-            naver_df['type'] = info_type
             # take a screenshot of it and add file name to screenshot col
             naver_df['screenshot'] = save_fullpage_screenshot(d, str(pid)+"_"+str(info_type), url_found)
             #concatenate crawled procudt info
@@ -118,7 +110,7 @@ if __name__ == '__main__':
     print('Naver Crawler Start')
     data = ExcelFileReader.load('../data/naver_url.pkl')
     result_df = pd.DataFrame()
-    crawler = NaverCrawler    
+    crawler = NaverCrawlerUrl    
     d = open_chrome_driver()
 
     origin_df = pd.DataFrame(data)
@@ -130,9 +122,9 @@ if __name__ == '__main__':
         nurl_1 = row[30] #Competitor 1 url
         nurl_2 = row[47] #Competitor 2 url
 
-        result_df = NaverCrawler.run_craweler(crawler, nurl_pg, result_df, 'PG', d)
-        result_df = NaverCrawler.run_craweler(crawler, nurl_1, result_df, 'C1', d)
-        result_df = NaverCrawler.run_craweler(crawler, nurl_2, result_df, 'C2', d)
+        result_df = NaverCrawler.run_craweler(crawler, pid, nurl_pg, result_df, 'PG', d)
+        result_df = NaverCrawler.run_craweler(crawler, pid, nurl_1, result_df, 'C1', d)
+        result_df = NaverCrawler.run_craweler(crawler, pid, nurl_2, result_df, 'C2', d)
 
         print(pid)
     print(result_df)
@@ -141,5 +133,3 @@ if __name__ == '__main__':
     print(main_df)
 
     d.close()
-    
-    crawler.insert_db(main_df)
