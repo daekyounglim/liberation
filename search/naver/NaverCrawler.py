@@ -15,13 +15,13 @@ sys.path.append(os.path.abspath('.'))
 sys.path.append(os.path.abspath('..'))
 sys.path.append(os.path.abspath('../..'))
 
-
 class NaverCrawler:
     def isNaN(self, string):
         return string != string
 
     def transform_template(self):
         data = ExcelFileReader.load('../data/naver_url.pkl')
+
         url_list = []
         for row in data.values:
             pid = row[0]
@@ -65,6 +65,18 @@ class NaverCrawler:
 if __name__ == '__main__':
     print('Naver Crawler Start')
     d = open_chrome_driver()
+
+    def insert_db(result_df):
+        print('====================================Insert DB==============================================')
+        print(result_df.sample(5))
+        engine = create_engine('postgresql+psycopg2://liberation:qwer1234@143.40.147.92:5432/liberation_db', echo=False)
+        result_df.set_index(['crawling_date', 'crawling_hour', 'Barcode', 'nvMid'])
+        result_df.to_sql('naver_price', con=engine, if_exists='append')
+
+
+if __name__ == '__main__':
+    print('Naver Crawler Start')
+
     crawler = NaverCrawler()
     crawlerUrl = NaverCrawlerUrl() 
     crawlerCurl = NaverCrawlerCurl() 
@@ -73,6 +85,7 @@ if __name__ == '__main__':
     print(url_df)
     
     result_df = pd.DataFrame()   
+    d = open_chrome_driver()
 
     for i in url_df.index:
         url_type = url_df._get_value(i, 'urlType')
