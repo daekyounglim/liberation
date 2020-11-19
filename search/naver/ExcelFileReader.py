@@ -4,8 +4,9 @@ import pickle
 import sys
 import os
 
-sys.path.append('..')
-sys.path.append('../..')
+sys.path.append(os.path.abspath('.'))
+sys.path.append(os.path.abspath('..'))
+sys.path.append(os.path.abspath('../..'))
 
 #sys.path.append('C:\\Users\\kang.y.5\\OneDrive - Procter and Gamble\\Documents\\GitHub\\liberation\\search')
 
@@ -18,7 +19,7 @@ class ExcelFileReader:
     def read (filepath):
         #Above 10 rows should be skipped in template
         template = pd.read_excel(os.path.abspath(filepath), skiprows=10)
-        writePickle(template, '../../data/naver_url.pkl')
+        writePickle(template, '..data/naver_url.pkl')
 
     def load (filepath):
         if os.path.isfile(filepath):
@@ -28,5 +29,6 @@ class ExcelFileReader:
 
 if __name__ == "__main__":
     efr = ExcelFileReader
-    efr.read('../../data/Copy of Liberation_Price Tracker SKU list_v1 - Final.xlsx')
-    print(efr.load('../../data/naver_url.pkl'))
+    efr.read('../data/Copy of Liberation_Price Tracker SKU list_v1 - Final.xlsx')
+    print(efr.load('../data/naver_url.pkl'))
+

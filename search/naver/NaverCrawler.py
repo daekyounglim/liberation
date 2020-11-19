@@ -7,14 +7,21 @@ import math
 from NaverCrawlerUrl import NaverCrawlerUrl
 from NaverCrawlerCurl import NaverCrawlerCurl
 from NaverScreenshot import open_chrome_driver, save_fullpage_screenshot
+from sqlalchemy import create_engine
+import sys
+import os
 
+sys.path.append(os.path.abspath('.'))
+sys.path.append(os.path.abspath('..'))
+sys.path.append(os.path.abspath('../..'))
 
 class NaverCrawler:
     def isNaN(self, string):
         return string != string
 
     def transform_template(self):
-        data = ExcelFileReader.load('../../data/naver_url.pkl')
+        data = ExcelFileReader.load('../data/naver_url.pkl')
+
         url_list = []
         for row in data.values:
             pid = row[0]
@@ -46,6 +53,19 @@ class NaverCrawler:
         url_df.columns = ['urlType', 'infoType', 'pid','barcode', 'url']
         return url_df
 
+    def insert_db(self, result_df):
+        print('====================================Insert DB==============================================')
+        print(result_df.sample(5))
+        print(result_df.columns)
+        engine = create_engine('postgresql+psycopg2://liberation:qwer1234@143.40.147.92:5432/liberation_db', echo=False)
+        result_df.set_index(['crawling_date', 'crawling_hour', 'barcode', 'nvMid'])
+        result_df.to_sql('naver_price', con=engine, if_exists='append')
+
+
+if __name__ == '__main__':
+    print('Naver Crawler Start')
+    d = open_chrome_driver()
+
     def insert_db(result_df):
         print('====================================Insert DB==============================================')
         print(result_df.sample(5))
@@ -56,6 +76,7 @@ class NaverCrawler:
 
 if __name__ == '__main__':
     print('Naver Crawler Start')
+
     crawler = NaverCrawler()
     crawlerUrl = NaverCrawlerUrl() 
     crawlerCurl = NaverCrawlerCurl() 
@@ -82,9 +103,8 @@ if __name__ == '__main__':
     main_df = pd.merge(url_df, result_df, how='right', left_on = 'pid', right_on= 'pid').drop(['urlType', 'url'], axis=1)
     #main_df.to_csv('result.csv',encoding='utf-8-sig')
 
-    d.close()
-    
     crawler.insert_db(main_df)
+    d.close()
 
 
     
