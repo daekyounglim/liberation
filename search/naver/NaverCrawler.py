@@ -35,19 +35,19 @@ class NaverCrawler:
                 url_list.append(['url', 'PG', pid, barcode, nurl_pg])                
             
             #Competitor 1
-            if not self.isNaN(row[32]):
-                ncurl_c1 = row[32]  # Competitor1 Product curl url
+            if not self.isNaN(row[34]):
+                ncurl_c1 = row[34]  # Competitor1 Product curl url
                 url_list.append(['curl', 'C1', pid, barcode, ncurl_c1])
-            elif not self.isNaN(row[31]):
-                nurl_c1 = row[31]  # Competitor1 Product url url
+            elif not self.isNaN(row[33]):
+                nurl_c1 = row[33]  # Competitor1 Product url url
                 url_list.append(['url', 'C1', pid, barcode, nurl_c1])
             
             #Competitor 2
-            if not self.isNaN(row[50]):
-                ncurl_c2 = row[50]  # Competitor2 Product curl url
+            if not self.isNaN(row[52]):
+                ncurl_c2 = row[52]  # Competitor2 Product curl url
                 url_list.append(['curl', 'C2', pid, barcode, ncurl_c2])
-            elif not self.isNaN(row[49]):
-                nurl_c2 = row[49]  # Competitor2 Product url url
+            elif not self.isNaN(row[51]):
+                nurl_c2 = row[51]  # Competitor2 Product url url
                 url_list.append(['url', 'C2', pid, barcode, nurl_c2])  
         url_df = pd.DataFrame(url_list)
         url_df.columns = ['urlType', 'infoType', 'pid','barcode', 'url']
