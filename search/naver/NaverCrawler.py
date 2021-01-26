@@ -64,18 +64,6 @@ class NaverCrawler:
 
 if __name__ == '__main__':
     print('Naver Crawler Start')
-    d = open_chrome_driver()
-
-    def insert_db(result_df):
-        print('====================================Insert DB==============================================')
-        print(result_df.sample(5))
-        engine = create_engine('postgresql+psycopg2://liberation:qwer1234@143.40.147.92:5432/liberation_db', echo=False)
-        result_df.set_index(['crawling_date', 'crawling_hour', 'Barcode', 'nvMid'])
-        result_df.to_sql('naver_price', con=engine, if_exists='append')
-
-
-if __name__ == '__main__':
-    print('Naver Crawler Start')
 
     crawler = NaverCrawler()
     crawlerUrl = NaverCrawlerUrl() 
