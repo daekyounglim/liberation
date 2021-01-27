@@ -73,7 +73,8 @@ if __name__ == '__main__':
     print(url_df)
     
     result_df = pd.DataFrame()   
-    d = open_chrome_driver()
+    #d = open_chrome_driver()
+    d=''
 
     for i in url_df.index:
         url_type = url_df._get_value(i, 'urlType')
@@ -92,7 +93,7 @@ if __name__ == '__main__':
     #main_df.to_csv('result.csv',encoding='utf-8-sig')
 
     crawler.insert_db(main_df)
-    d.close()
+    #d.close()
 
 
     
