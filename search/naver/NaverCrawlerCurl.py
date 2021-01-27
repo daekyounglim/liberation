@@ -105,6 +105,7 @@ class NaverCrawlerCurl:
             url_found= findUrl(curl)[0]
             # take a screenshot of it and add file name to screenshot col
             #naver_df['screenshot'] = save_fullpage_screenshot(d, str(pid)+"_"+str(info_type), url_found)
+            naver_df['screenshot'] = 'NA'
             #concatenate crawled procudt info
             result_df = pd.concat([result_df, naver_df], axis = 0,  ignore_index=True)
         return result_df
