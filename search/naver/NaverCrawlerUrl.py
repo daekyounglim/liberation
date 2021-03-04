@@ -46,7 +46,6 @@ class NaverCrawlerUrl:
                 products = self._parse_element(productsPage, 'products')
 
                 if products is not None:
-                    
                     #only if this product is in main list
                     if i==3:                        
                         #for loop products list, 1 product level
@@ -61,17 +60,18 @@ class NaverCrawlerUrl:
                 else:
                     i += 1
                     continue
-
+            
             naver_df['pid'] = pid
             naver_df['crawling_datetime'] = datetime.now()
             naver_df['crawling_date'] = pd.to_datetime(naver_df['crawling_datetime'] ).dt.date
             naver_df['crawling_hour'] = pd.to_datetime(naver_df['crawling_datetime'] ).dt.hour
             naver_df = naver_df.astype({"pcRank": int})
-
             return naver_df
 
         except ValueError as ve:
             print(ve)
+        except KeyError as ke:
+            print(ke)
 
     def _parse_element(self, obj, element_name):
         '''Parse obj by element'''
