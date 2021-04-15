@@ -29,6 +29,6 @@ class ExcelFileReader:
 
 if __name__ == "__main__":
     efr = ExcelFileReader
-    efr.read('../data/Liberation_Price Tracker SKU list_v1_20210401.xlsx')
+    efr.read('../data/Liberation_Price Tracker SKU list_v1_20210415.xlsx')
     print(efr.load('../data/naver_url.pkl'))
 
